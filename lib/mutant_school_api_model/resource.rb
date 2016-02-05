@@ -1,21 +1,6 @@
 module MutantSchoolAPIModel
   class Resource
-    ATTRIBUTE_NAMES = [
-      "id",
-      "created_at",
-      "updated_at",
-      "url"
-    ]
-    INCLUDES = []
-
-    attr_accessor :response
-    attr_reader :errors
-
     def self.attribute_names
-      ATTRIBUTE_NAMES
-    end
-
-    def self.disallowed_params
       [
         "id",
         "created_at",
@@ -24,26 +9,38 @@ module MutantSchoolAPIModel
       ]
     end
 
+    attr_accessor *self.attribute_names, :response
+    attr_reader :errors
+
     def self.includes
       {}
+    end
+
+    def self.disallowed_params
+      self.attribute_name + self.includes.keys
     end
 
     def self.base_url
       'https://mutant-school.herokuapp.com/api/v1'
     end
 
-    def self.url
-      self.base_url + "/#{self.name.split('::').last.downcase}s"
+    def self.url(parent = nil)
+      base = (parent && parent.url || self.base_url)
+      base + "/#{self.name.split('::').last.downcase}s"
     end
 
-    def self.all
-      JSON.parse(HTTP.get(self.url).to_s).map do |attr|
+    def self.all(options = {})
+      options.stringify_keys!
+      response = HTTP.get(self.url(options['parent']))
+      return [] if response.code != 200
+      JSON.parse(response.to_s).map do |attr|
         self.new attr
       end
     end
 
-    def self.find(id)
-      response = HTTP.get(self.url + "/#{id}")
+    def self.find(id, options = {})
+      options.stringify_keys!
+      response = HTTP.get(self.url(options['parent']) + "/#{id}")
       return JSON.parse(response.to_s) if response.code != 200
       self.new response
     end
@@ -68,7 +65,6 @@ module MutantSchoolAPIModel
       attr.stringify_keys!
       attr.slice(*self.class.attribute_names).each do |name, value|
         if self.class.includes.keys.include? name
-          binding.pry
           value = self.class.includes[name].new value
         end
         instance_variable_set("@#{name}", value)
