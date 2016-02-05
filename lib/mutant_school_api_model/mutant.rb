@@ -18,6 +18,8 @@ module MutantSchoolAPIModel
       { "advisor" => Mutant }
     end
 
+    def enrollments
+      @enrollments ||= Enrollment.all(parent: self)
     end
   end
 end
