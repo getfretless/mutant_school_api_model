@@ -1,5 +1,7 @@
 module MutantSchoolAPIModel
   class Resource
+
+    # Default attribute list
     def self.attribute_names
       [
         "id",
@@ -12,10 +14,12 @@ module MutantSchoolAPIModel
     attr_accessor *self.attribute_names, :response
     attr_reader :errors
 
+    # Hash of nested resources, e.g. `{ attribute_name: ResourceClassName }`
     def self.includes
       {}
     end
 
+    # Attributes that must not be included in POST/PUT payloads.
     def self.disallowed_params
       self.attribute_name + self.includes.keys
     end
