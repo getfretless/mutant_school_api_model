@@ -4,12 +4,8 @@ module MutantSchoolAPIModel
   class Term < MutantSchoolAPIModel::Resource
     def self.attribute_names
       super + [
-        "id",
         "begins_at",
-        "ends_at",
-        "created_at",
-        "updated_at",
-        "url"
+        "ends_at"
       ]
     end
 
