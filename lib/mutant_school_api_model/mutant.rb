@@ -12,39 +12,18 @@ module MutantSchoolAPIModel
       "eligibility_begins_at",
       "eligibility_ends_at",
       "may_advise_beginning_at",
-      "url"
+      "url",
+      "advisor"
     ]
 
-    attr_accessor *ATTRIBUTE_NAMES, :response, :advisor
-    attr_reader :errors
+    attr_accessor *ATTRIBUTE_NAMES
 
-    def self.attribute_names
-      ATTRIBUTE_NAMES
+    def self.includes
+      { "advisor" => Mutant }
     end
 
     def self.disallowed_params
-      [
-        "id",
-        "created_at",
-        "updated_at",
-        "url"
-      ]
-    end
-
-    def update_attributes(attr)
-      attr.stringify_keys!
-      init_advisor(attr['advisor'])
-      attr.slice(*ATTRIBUTE_NAMES).each do |name, value|
-        instance_variable_set("@#{name}", value)
-      end
-    end
-
-    private
-
-    def init_advisor(advisor_hash)
-      if advisor_hash
-        @advisor = Mutant.new advisor_hash
-      end
+      super + ["advisor"]
     end
   end
 end

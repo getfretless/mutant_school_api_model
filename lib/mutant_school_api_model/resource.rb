@@ -1,13 +1,31 @@
 module MutantSchoolAPIModel
   class Resource
-    ATTRIBUTE_NAMES = []
+    ATTRIBUTE_NAMES = [
+      "id",
+      "created_at",
+      "updated_at",
+      "url"
+    ]
     INCLUDES = []
 
-    attr_accessor *ATTRIBUTE_NAMES, :response, :advisor
+    attr_accessor :response
     attr_reader :errors
 
+    def self.attribute_names
+      ATTRIBUTE_NAMES
+    end
+
     def self.disallowed_params
-      []
+      [
+        "id",
+        "created_at",
+        "updated_at",
+        "url"
+      ]
+    end
+
+    def self.includes
+      {}
     end
 
     def self.base_url
@@ -19,13 +37,15 @@ module MutantSchoolAPIModel
     end
 
     def self.all
-      JSON.parse(HTTP.get(self.url).to_s)
+      JSON.parse(HTTP.get(self.url).to_s).map do |attr|
+        self.new attr
+      end
     end
 
     def self.find(id)
       response = HTTP.get(self.url + "/#{id}")
       return JSON.parse(response.to_s) if response.code != 200
-      Mutant.new response
+      self.new response
     end
 
     def initialize(attributes_or_response = nil)
@@ -46,8 +66,11 @@ module MutantSchoolAPIModel
 
     def update_attributes(attr)
       attr.stringify_keys!
-      # init_includes(attr)
-      attr.slice(*ATTRIBUTE_NAMES).each do |name, value|
+      attr.slice(*self.class.attribute_names).each do |name, value|
+        if self.class.includes.keys.include? name
+          binding.pry
+          value = self.class.includes[name].new value
+        end
         instance_variable_set("@#{name}", value)
       end
     end
@@ -87,12 +110,6 @@ module MutantSchoolAPIModel
     end
 
     private
-
-    # def init_includes(att)
-    #   attr.slice(*INCLUDES).each do |name, value|
-    #     instance_variable_set("@#{name}", value)
-    #   end
-    # end
 
     def params
       { self.class.name.split('::').last.downcase => attributes.except(*self.class.disallowed_params) }
