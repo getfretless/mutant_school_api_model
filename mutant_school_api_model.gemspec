@@ -5,7 +5,7 @@ require 'mutant_school_api_model/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "mutant_school_api_model"
-  spec.version       = MutantSchoolApiModel::VERSION
+  spec.version       = MutantSchoolAPIModel::VERSION
   spec.authors       = ["Dave Strus"]
   spec.email         = ["dave@getfretless.com"]
 
@@ -32,4 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency 'pry', '~> 0.10'
   spec.add_development_dependency 'minitest-reporters', '~> 1.1'
+  spec.add_development_dependency 'http', '~> 1.0'
+  spec.add_development_dependency 'addressable', '~> 2.4'
 end
