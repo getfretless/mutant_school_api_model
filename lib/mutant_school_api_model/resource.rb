@@ -2,16 +2,28 @@ module MutantSchoolAPIModel
   class Resource
 
     # Default attribute list
-    def self.attribute_names
+    def self.base_attribute_names
       [
-        "id",
-        "created_at",
-        "updated_at",
-        "url"
+        :id,
+        :created_at,
+        :updated_at,
+        :url
       ]
     end
 
-    attr_accessor *self.attribute_names, :response
+    def self.model_specific_attribute_names
+      []
+    end
+
+    def self.attribute_names
+      self.base_attribute_names.map(&:to_sym) + self.model_specific_attribute_names.map(&:to_sym)
+    end
+
+    def self.setter_attribute_names
+      attribute_names.map{|name| "#{name}=".to_sym }
+    end
+
+    attr_accessor :response
     attr_reader :errors
 
     # Hash of nested resources, e.g. `{ attribute_name: ResourceClassName }`
@@ -21,7 +33,7 @@ module MutantSchoolAPIModel
 
     # Attributes that must not be included in POST/PUT payloads.
     def self.disallowed_params
-      self.attribute_name + self.includes.keys
+      self.attribute_names + self.includes.keys
     end
 
     def self.base_url
@@ -65,9 +77,12 @@ module MutantSchoolAPIModel
       update_attributes(JSON.parse(@response.to_s))
     end
 
-    def update_attributes(attr)
-      attr.stringify_keys!
-      attr.slice(*self.class.attribute_names).each do |name, value|
+    def symbolize_keys(hash)
+      hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+    end
+
+    def update_attributes(attrs)
+      symbolize_keys(attrs).slice(*self.class.attribute_names).each do |name, value|
         if self.class.includes.keys.include? name
           value = self.class.includes[name].new value
         end
@@ -109,14 +124,31 @@ module MutantSchoolAPIModel
       !!@id
     end
 
-    private
+    def method_missing(method_sym, *arguments, &block)
+      # the first argument is a Symbol, so you need to_s it if you want to pattern match
+      if self.class.attribute_names.include?(method_sym)
+        instance_variable_get("@#{method_sym}")
+      elsif self.class.setter_attribute_names.include?(method_sym)
+        equalless_name = method_sym.to_s[0..(method_sym.to_s.index('=') - 1)]
+        instance_variable_set("@#{equalless_name}", arguments.first)
+      else
+        super
+      end
+    end
+
+    def to_hash
+      attributes.except(*self.class.disallowed_params)
+    end
 
     def params
-      { self.class.name.split('::').last.downcase => attributes.except(*self.class.disallowed_params) }
+      { self.class.name.split('::').last.downcase => attributes }
     end
 
-    def add_errors
-      @errors << JSON.parse(@response.to_s)
-    end
+    private
+
+
+      def add_errors
+        @errors << JSON.parse(@response.to_s)
+      end
   end
 end
