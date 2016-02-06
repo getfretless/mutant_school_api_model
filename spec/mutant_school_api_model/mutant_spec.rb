@@ -94,3 +94,20 @@ describe MutantSchoolAPIModel::Mutant, '#destroy' do
 
 end
 
+
+
+# describe MutantSchoolAPIModel::Mutant, '#advisor' do
+
+#   xit 'should add an advisor' do
+#     prof_x = MutantFactory.build(:xavier)
+#     prof_x.save
+
+#     wolverine = MutantFactory.build
+#     wolverine.advisor = prof_x.id
+#     wolverine.save
+#     actual = MutantSchoolAPIModel::Mutant.find(wolverine.id)
+# binding.pry
+#     _(actual).must_equal({"status"=>"404", "error"=>"Not Found"})
+#   end
+
+# end
