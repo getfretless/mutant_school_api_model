@@ -58,7 +58,12 @@ module MutantSchoolAPIModel
       options.stringify_keys!
       response = HTTP.get(self.url(options['parent']) + "/#{id}")
       return JSON.parse(response.to_s) if response.code != 200
-      self.new response
+
+      if (JSON.parse(response).class == Array)
+        JSON.parse(response).map{|c| self.new(c) }
+      else
+        self.new response
+      end
     end
 
     def initialize(attributes_or_response = nil)

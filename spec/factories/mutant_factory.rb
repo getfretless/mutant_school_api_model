@@ -7,7 +7,6 @@ class MutantFactory
     mutant.eligibility_begins_at = '1974-10-01'
     mutant.eligibility_ends_at = ''
     mutant.may_advise_beginning_at = '1974-10-01'
-    mutant.advisor = 'Professor Xavier'
     mutant
   end
 end

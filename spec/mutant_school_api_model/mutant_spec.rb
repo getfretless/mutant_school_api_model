@@ -9,8 +9,7 @@ describe MutantSchoolAPIModel::Mutant, '#attrbutes' do
       real_name: 'James "Logan" Howlett',
       eligibility_begins_at: '1974-10-01',
       eligibility_ends_at: '',
-      may_advise_beginning_at: '1974-10-01',
-      advisor: 'Professor Xavier'
+      may_advise_beginning_at: '1974-10-01'
     })
   end
 
@@ -51,6 +50,17 @@ describe MutantSchoolAPIModel::Mutant, '#save' do
     _(wolverine.id).wont_be_nil
   end
 
+  it 'should update mutant_name' do
+    wolverine = MutantFactory.build
+    wolverine.save
+    wolverine.mutant_name = 'Cyclops'
+    wolverine.save
+
+    actual = MutantSchoolAPIModel::Mutant.find(wolverine.id)
+    _(actual.mutant_name).must_equal('Cyclops')
+  end
+
+
 end
 
 describe MutantSchoolAPIModel::Mutant, '#find' do
@@ -59,7 +69,28 @@ describe MutantSchoolAPIModel::Mutant, '#find' do
     wolverine = MutantFactory.build
     wolverine.save
 
-    _(MutantSchoolAPIModel::Mutant.find(wolverine.id).attributes).must_equal(wolverine.attributes)
+    actual = MutantSchoolAPIModel::Mutant.find(wolverine.id)
+    _(actual.attributes).must_equal(wolverine.attributes)
+  end
+
+  it 'should retrieve the mutant that was just created' do
+    actual = MutantSchoolAPIModel::Mutant.find(nil)
+    _(actual).must_be_instance_of(Array)
   end
 
 end
+
+
+describe MutantSchoolAPIModel::Mutant, '#destroy' do
+
+  it 'should detroy the mutant that was just created' do
+    wolverine = MutantFactory.build
+    wolverine.save
+    id = wolverine.id
+    wolverine.destroy
+    actual = MutantSchoolAPIModel::Mutant.find(id)
+    _(actual).must_equal({"status"=>"404", "error"=>"Not Found"})
+  end
+
+end
+
