@@ -56,10 +56,11 @@ module MutantSchoolAPIModel
 
     def self.find(id, options = {})
       options.stringify_keys!
+
       response = HTTP.get(self.url(options['parent']) + "/#{id}")
       return JSON.parse(response.to_s) if response.code != 200
 
-      if (JSON.parse(response).class == Array)
+      if (JSON.parse(response.to_s).class == Array)
         JSON.parse(response).map{|c| self.new(c) }
       else
         self.new response
@@ -130,7 +131,7 @@ module MutantSchoolAPIModel
     end
 
     def method_missing(method_sym, *arguments, &block)
-      # the first argument is a Symbol, so you need to_s it if you want to pattern match
+      # the first argument is a Symbol, so you need to to_s it if you want to pattern match
       if self.class.attribute_names.include?(method_sym)
         instance_variable_get("@#{method_sym}")
       elsif self.class.setter_attribute_names.include?(method_sym)

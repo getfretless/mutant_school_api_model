@@ -30,12 +30,13 @@ describe MutantSchoolAPIModel::Mutant, 'missing method attributes' do
     _(wolverine.id).must_equal(9999)
   end
 
-  it 'should set the base class attribute' do
+  it 'should set the specific class attribute' do
     wolverine = MutantFactory.build
     wolverine.mutant_name = 'AR3'
     _(wolverine.mutant_name).must_equal('AR3')
   end
 end
+
 
 describe MutantSchoolAPIModel::Mutant, '#save' do
 
@@ -60,30 +61,31 @@ describe MutantSchoolAPIModel::Mutant, '#save' do
     _(actual.mutant_name).must_equal('Cyclops')
   end
 
-
 end
+
 
 describe MutantSchoolAPIModel::Mutant, '#find' do
 
   it 'should retrieve the mutant that was just created' do
-    wolverine = MutantFactory.build
-    wolverine.save
-
-    actual = MutantSchoolAPIModel::Mutant.find(wolverine.id)
-    _(actual.attributes).must_equal(wolverine.attributes)
+    with_fake_http do
+      wolverine = MutantFactory.build
+      wolverine.save
+      
+      actual = MutantSchoolAPIModel::Mutant.find(wolverine.id)
+      _(actual.attributes).must_equal(wolverine.attributes)
+    end
   end
 
-  it 'should retrieve the mutant that was just created' do
+  it 'should should return an empty array when there is no such record' do
     actual = MutantSchoolAPIModel::Mutant.find(nil)
     _(actual).must_be_instance_of(Array)
   end
 
 end
 
-
 describe MutantSchoolAPIModel::Mutant, '#destroy' do
 
-  it 'should detroy the mutant that was just created' do
+  it 'should destroy the mutant that was just created' do
     wolverine = MutantFactory.build
     wolverine.save
     id = wolverine.id
